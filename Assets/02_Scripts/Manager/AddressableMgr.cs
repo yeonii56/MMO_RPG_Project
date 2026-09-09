@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.InputSystem;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
 
@@ -43,6 +46,35 @@ public class AddressableMgr : Singleton<AddressableMgr>
         _curMap = map;
         AddLoadAssets(_curMap, typeof(Tilemap));
         StartLoadAssets(() => Addressables.LoadSceneAsync(sceneName));
+    }
+
+    // 기본 에셋 다운로드 사이즈
+    public async void GetDownLoadSize(Action<long> callbacck)
+    {
+        var size = Addressables.GetDownloadSizeAsync("default");
+        await size.Task;
+
+        long sizeByte = size.Result / 1024 * 1024;
+        Debug.Log($"size : {size.Result}, {sizeByte}");
+
+        callbacck.Invoke(sizeByte);
+    }
+
+    // 기본 에셋 다운
+    public async void StartDefaultAssetLoad(Action callback)
+    {
+        var handle = Addressables.DownloadDependenciesAsync("default", false); // false: 수동 Release
+
+        while (!handle.IsDone)
+        {
+            DownloadStatus status = handle.GetDownloadStatus();
+            float percent = (float)status.DownloadedBytes / status.TotalBytes;
+            Debug.Log($"{status.DownloadedBytes} / {status.TotalBytes} bytes ({percent:P0})");
+            await Task.Yield();
+        }
+
+        Addressables.Release(handle); // 수동으로 넘겼으니 직접 해제
+        callback.Invoke();
     }
 
     // 로드할 에셋 추가
