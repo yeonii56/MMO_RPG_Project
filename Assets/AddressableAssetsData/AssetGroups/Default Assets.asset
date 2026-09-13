@@ -15,8 +15,8 @@ MonoBehaviour:
   m_GroupName: Default Assets
   m_GUID: 0d28064717557c44c8695f722ace3e8e
   m_SerializeEntries:
-  - m_GUID: 0e95986669699f84cb34e5c042b0d388
-    m_Address: Title_Bg
+  - m_GUID: 6877fb649746c674d8fbbcf60d41892b
+    m_Address: Player
     m_ReadOnly: 0
     m_SerializedLabels:
     - default
@@ -25,6 +25,7 @@ MonoBehaviour:
     m_Address: Map_Main
     m_ReadOnly: 0
     m_SerializedLabels:
+    - Map
     - default
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
