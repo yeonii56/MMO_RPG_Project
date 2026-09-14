@@ -21,8 +21,15 @@ MonoBehaviour:
     m_SerializedLabels:
     - default
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e25a8be84d9acc548a3dfe2992ef7079
+    m_Address: 001
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Data
+    - default
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e80f68e73f9de0b40811ff1aabeb0c55
-    m_Address: Map_Main
+    m_Address: Map_001
     m_ReadOnly: 0
     m_SerializedLabels:
     - Map

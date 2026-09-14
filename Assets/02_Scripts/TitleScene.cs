@@ -10,6 +10,6 @@ public class TitleScene : MonoBehaviour
 
     private void LoadMainScene()
     {
-        SceneMgr.Instance.LoadMainScene();
+        Manager.SceneMgr.Instance.LoadScene("MainScene");
     }
 }

@@ -1,86 +1,123 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using static Define;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private Grid _grid;
     [SerializeField] private Animator _anim;
 
-    private MoveDir _dir = MoveDir.None;   
     private Vector3Int _cellPos = Vector3Int.zero;
     private bool _isMoving = false;
     private float _speed = 5f;
+    private MoveDir _dir = MoveDir.None;
+    private MoveDir Dir
+    {
+        get
+        {
+            return _dir;
+        }
+        set
+        {
+            if (value == _dir)
+                return;
+
+            _dir = value;
+
+            if (value == MoveDir.None)
+            {
+                _anim.Play("Idle");
+
+            }
+            else
+            {
+                _anim.Play("Run");
+
+                if (value == MoveDir.Right)
+                {
+                    transform.localScale = new Vector3(-1f, 1f, 1f);
+                }
+                else if (value == MoveDir.Left)
+                {
+                    transform.localScale = new Vector3(1f, 1f, 1f);
+                }
+            }            
+        }
+    }
 
     void Start()
-    {
-        transform.position = _grid.CellToWorld(_cellPos);
+    {        
+        transform.position = Manager.SceneMgr.Instance.Map.CellToWorld(_cellPos);
     }
 
     void Update()
     {
-        UpdateMoveState();
-        UpdateIsMoving();
+        GetDirInput();
         UpdatePosition();
+        UpdateIsMoving();
     }
 
-    // 이동키 받기
-    private void UpdateMoveState()
+    // 키보드 입력
+    private void GetDirInput()
     {
         if (Input.GetKey(KeyCode.W))
         {
-            _dir = MoveDir.Up;
+            Dir = MoveDir.Up;
         }
         else if (Input.GetKey(KeyCode.S))
         {
-            _dir = MoveDir.Down;
+            Dir = MoveDir.Down;
         }
         else if (Input.GetKey(KeyCode.A))
         {
-            _dir = MoveDir.Left;
+            Dir = MoveDir.Left;
         }
         else if (Input.GetKey(KeyCode.D))
         {
-            _dir = MoveDir.Right;
+            Dir = MoveDir.Right;
         }
         else
         {
-            _dir = MoveDir.None;
+            Dir = MoveDir.None;
         }
     }
 
-    // 실제 포지션 이동
-    private void UpdateIsMoving()
+    // 이동 가능한 상태일 때, 실제 좌표값 변경
+    private void UpdatePosition()
     {
         if (_isMoving == true)
             return;
 
-        switch (_dir)
+        Vector3Int destPos = _cellPos;
+
+        switch (Dir)
         {
             case MoveDir.Up:
-                _cellPos += Vector3Int.up;
-                _isMoving = true;
+                destPos += Vector3Int.up;
                 break;
             case MoveDir.Down:
-                _cellPos += Vector3Int.down;
-                _isMoving = true;
+                destPos += Vector3Int.down;
                 break;
             case MoveDir.Right:
-                _cellPos += Vector3Int.right;
-                _isMoving = true;
+                destPos += Vector3Int.right;
                 break;
             case MoveDir.Left:
-                _cellPos += Vector3Int.left;
-                _isMoving = true;
+                destPos += Vector3Int.left;
                 break;
+        }
+
+        if (Manager.SceneMgr.Instance.CanGo(destPos))
+        {
+            _cellPos = destPos;
+            _isMoving = true;
         }
     }
 
     // 이동 모션
-    private void UpdatePosition()
+    private void UpdateIsMoving()
     {
         if (_isMoving)
         {
-            Vector3 destPos = _grid.CellToWorld(_cellPos);
+            Vector3 destPos = Manager.SceneMgr.Instance.Map.CellToWorld(_cellPos);
             Vector3 moveDir = destPos - transform.position;
 
             if (moveDir.magnitude < _speed * Time.deltaTime)
@@ -91,7 +128,6 @@ public class PlayerController : MonoBehaviour
             else
             {
                 transform.position += moveDir.normalized * _speed * Time.deltaTime;
-                _anim.Play("Run");
                 _isMoving = true;
             }
         }
