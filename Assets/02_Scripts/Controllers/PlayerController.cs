@@ -1,77 +1,85 @@
+using Manager;
+using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using static Define;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : CharaController
 {
-    [SerializeField] private Animator _anim;
+    private Coroutine _coroutine;
+    private bool _isPotal = false;
 
-    private Vector3Int _cellPos = Vector3Int.zero;
-    private bool _isMoving = false;
-    private float _speed = 5f;
-    private MoveDir _dir = MoveDir.None;
-    private MoveDir Dir
+    private void LateUpdate()
     {
-        get
-        {
-            return _dir;
-        }
-        set
-        {
-            if (value == _dir)
-                return;
-
-            _dir = value;
-
-            if (value == MoveDir.None)
-            {
-                _anim.Play("Idle");
-
-            }
-            else
-            {
-                _anim.Play("Run");
-
-                if (value == MoveDir.Right)
-                {
-                    transform.localScale = new Vector3(-1f, 1f, 1f);
-                }
-                else if (value == MoveDir.Left)
-                {
-                    transform.localScale = new Vector3(1f, 1f, 1f);
-                }
-            }            
-        }
+        Camera.main.transform.position = new Vector3(transform.position.x, transform.position.y, -10f);
     }
 
-    void Start()
-    {        
-        transform.position = Manager.SceneMgr.Instance.Map.CellToWorld(_cellPos);
-    }
-
-    void Update()
+    protected override void UpdateController()
     {
-        GetDirInput();
-        UpdatePosition();
-        UpdateIsMoving();
+        switch (State)
+        {
+            case CharaState.Idle:
+                GetDirInput();
+                break;
+            case CharaState.Move:
+                GetDirInput();
+                break;
+            case CharaState.Attack:
+                break;
+            case CharaState.Dead:
+                break;
+        }
+
+        base.UpdateController();
     }
 
-    // 키보드 입력
+    protected override void UpdateMove()
+    {
+        base.UpdateMove();
+
+        // 포탈
+        _isPotal = Manager.SceneMgr.Instance.IsPotal(CellPos);
+    }
+
+    protected override void UpdateIdle()
+    {
+        // 이동
+        if (Dir != MoveDir.None)
+        {
+            State = CharaState.Move;
+            return;
+        }
+
+        // 스킬
+        if (Input.GetKey(KeyCode.Space))
+        {
+            State = CharaState.Attack;
+            _coroutine = StartCoroutine(AttackCoroutine());
+        }
+    }
+
+    protected override void UpdateDead()
+    {
+        // UI 팝업 -> 버튼 클릭하면 넘어가게 수정
+        CellPos = Vector3Int.zero;
+        transform.position = SceneMgr.Instance.Map.CellToWorld(CellPos);
+    }
+
+    // 이동 키보드 입력
     private void GetDirInput()
     {
-        if (Input.GetKey(KeyCode.W))
+        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
         {
             Dir = MoveDir.Up;
         }
-        else if (Input.GetKey(KeyCode.S))
+        else if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
         {
             Dir = MoveDir.Down;
         }
-        else if (Input.GetKey(KeyCode.A))
+        else if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
         {
             Dir = MoveDir.Left;
         }
-        else if (Input.GetKey(KeyCode.D))
+        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
         {
             Dir = MoveDir.Right;
         }
@@ -81,55 +89,25 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // 이동 가능한 상태일 때, 실제 좌표값 변경
-    private void UpdatePosition()
+    private IEnumerator AttackCoroutine()
     {
-        if (_isMoving == true)
-            return;
-
-        Vector3Int destPos = _cellPos;
-
-        switch (Dir)
+        // 데미지 판정
+        GameObject obj = Manager.ObjectMgr.Instance.Find(GetFrontCell());
+        if (obj != null)
         {
-            case MoveDir.Up:
-                destPos += Vector3Int.up;
-                break;
-            case MoveDir.Down:
-                destPos += Vector3Int.down;
-                break;
-            case MoveDir.Right:
-                destPos += Vector3Int.right;
-                break;
-            case MoveDir.Left:
-                destPos += Vector3Int.left;
-                break;
-        }
-
-        if (Manager.SceneMgr.Instance.CanGo(destPos))
-        {
-            _cellPos = destPos;
-            _isMoving = true;
-        }
-    }
-
-    // 이동 모션
-    private void UpdateIsMoving()
-    {
-        if (_isMoving)
-        {
-            Vector3 destPos = Manager.SceneMgr.Instance.Map.CellToWorld(_cellPos);
-            Vector3 moveDir = destPos - transform.position;
-
-            if (moveDir.magnitude < _speed * Time.deltaTime)
+            if (obj.TryGetComponent<CharaController>(out var cc))
             {
-                transform.position = destPos;
-                _isMoving = false;
+                cc.OnDamaged(_damage);
             }
             else
             {
-                transform.position += moveDir.normalized * _speed * Time.deltaTime;
-                _isMoving = true;
+                Debug.LogError("CharaController not found error");
             }
         }
+
+        // 시간 대기
+        yield return new WaitForSeconds(0.5f);
+        State = CharaState.Idle;
+        _coroutine = null;
     }
 }

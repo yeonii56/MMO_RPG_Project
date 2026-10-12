@@ -28,6 +28,7 @@ public class InitScene : MonoBehaviour
 
     private void Init()
     {
+        Manager.AddressableMgr.Instance.AddLoadAssets("Player", typeof(GameObject));
         Manager.AddressableMgr.Instance.AddLoadAssets("Map_001", typeof(GameObject));
         Manager.AddressableMgr.Instance.AddLoadAssets("001", typeof(TextAsset));
     }

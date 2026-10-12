@@ -10,4 +10,12 @@ public class Define
         Right,
         Left
     }
+
+    public enum CharaState
+    {
+        Idle,
+        Move,
+        Attack,
+        Dead
+    }
 }
