@@ -1,3 +1,4 @@
+using Manager;
 using UnityEngine;
 
 public class BattleScene : MonoBehaviour
@@ -9,17 +10,8 @@ public class BattleScene : MonoBehaviour
         MakeMap();
     }
 
-    public void MakeMap()
+    private async void MakeMap()
     {
-        Manager.SceneMgr.Instance.UpdateMap(1);
-
-        ObjectPool.Entry entry = new ObjectPool.Entry()
-        {
-            id = 10001,
-            count = 5
-        };
-
-        ObjectPool.Instance.SetPool(entry);
-        spawner.InitSpawn(entry.id, entry.count);
+        await SceneMgr.Instance.ChangeMap();
     }
 }

@@ -1,42 +1,102 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
 
 namespace Manager
 {
     public class SceneMgr : Singleton<SceneMgr>
-    {        
-        public Grid Map { get; private set;  }
-        private int[,] collision; // 0: 갈 수 있음, 1: 충돌물체 있음, 2: 포탈있음
-        private int _minX;
-        private int _maxX;
-        private int _minY;
-        private int _maxY;
+    {
+        public MonsterState MonsterState;
+        private Dictionary<int, MapData> _mapData = new();
+        public MapData CurMap;
+        private GameObject _curMapObj;
+        private Grid _grid;
+        public Vector3Int SpwanPos;
 
         // 타이틀씬 로드
         public void LoadTitleScene()
         {
-            Action callback = () => SceneManager.LoadSceneAsync("TitleScene");
+            Action callback = () => LoadScene("TitleScene");
             AddressableMgr.Instance.StartDefaultAssetLoad(callback);
         }
 
         // 씬 로드
         public void LoadScene(string sceneName)
         {
-            AddressableMgr.Instance.StartLoadAssets(async () => await SceneManager.LoadSceneAsync(sceneName));
+            AddressableMgr.Instance.StartLoadAssets(async () => await SceneManager.LoadSceneAsync(sceneName));            
         }
 
         // 맵 교체
-        public void UpdateMap(int mapId)
+        public async Task ChangeMap()
         {
-            if (Map != null)
+            // 맵 제거
+            if (_curMapObj != null)
             {
-                DestroyMap();
+                Addressables.ReleaseInstance(_curMapObj);
             }
 
-            MakeMap(mapId);
-            LeadCollision(mapId);
+            // 맵 생성
+            string key = string.Format("Map_{0}", CurMap.MapId);
+            var _handle = Addressables.InstantiateAsync(key);
+            _curMapObj = await _handle.Task;
+            _grid = _curMapObj.GetComponent<Grid>();
+
+            // 몬스터 생성 -> 생성 로직 수정 필요
+            MonsterState = new();
+        }
+
+        // 맵 데이터 셋팅
+        public void SetMapData(int mapId)
+        {
+            if (CurMap != null && mapId == CurMap.MapId)
+                return;
+
+            if (_mapData.TryGetValue(mapId, out CurMap) == false)
+            {
+                CurMap = new MapData(mapId);
+                _mapData.Add(mapId, CurMap);
+            }
+        }
+        
+        public Vector3 GetCelltoWorld(Vector3Int cellPos)
+        {
+            if (_grid == null)
+            {
+                Debug.LogError("_grid is null");
+                return default;
+            }
+
+            return _grid.CellToWorld(cellPos);
+        }
+
+        // 오브젝트 체크
+        public GameObject FindObj(Vector3Int cellPos)
+        {
+            return MonsterState.Find(cellPos);
+        }
+    }
+
+    public class MapData
+    {        
+        public int MapId { get; private set; }
+        private Dictionary<Vector3Int, TileData> _interactTiles = new(); // 상호작용 타일
+        private int[,] _collision; // 충돌 체크
+        private int _minX, _maxX, _minY, _maxY;
+
+        public MapData(int mapId)
+        {
+            MapId = mapId;
+            Init();
+        }
+
+        public async void Init()
+        {
+            SetInteractData(MapId);
+            await LeadCollision(MapId);
         }
 
         public Vector3Int RandomPos()
@@ -51,7 +111,7 @@ namespace Manager
                     y = UnityEngine.Random.Range(_minY, _maxY)
                 };
 
-            } while (CanGo(cellPos) == false || ObjectMgr.Instance.Find(cellPos) != null);
+            } while (CanGo(cellPos) == false || SceneMgr.Instance.FindObj(cellPos) != null);
 
             return cellPos;
         }
@@ -64,28 +124,49 @@ namespace Manager
             if (cellPos.y < _minY || cellPos.y >= _maxY)
                 return false;
 
-            bool canGo = collision[_maxY - cellPos.y - 1, cellPos.x - _minX] != 1;
+            bool canGo = _collision[_maxY - cellPos.y - 1, cellPos.x - _minX] != 1;
             return canGo;
         }
 
-        // 포탈 체크
-        public bool IsPotal(Vector3Int cellPos)
+        // 상호작용 체크
+        public bool CanInteract(Vector3Int cellPos)
         {
-            if (cellPos.x < _minX || cellPos.x >= _maxX)
-                return false;
-            if (cellPos.y < _minY || cellPos.y >= _maxY)
-                return false;
+            if (_interactTiles.TryGetValue(cellPos, out var tileData))
+            {
+                tileData.Interact();
+                return true;
+            }
 
-            int col = collision[_maxY - cellPos.y - 1, cellPos.x - _minX];
-            return col == 2;
+            return false;
         }
 
-        // 맵 충돌 확인
-        private void LeadCollision(int mapId)
+        // 상호작용 데이터 셋팅
+        private void SetInteractData(int mapId)
         {
-            // Collision 파일 
-            string name = mapId.ToString("000");
-            TextAsset txt = AddressableMgr.Instance.GetAsset<TextAsset>(name);
+            if (DBMgr.Map_TB.MapList.TryGetValue(mapId, out MapList mapList) == false)
+            {
+                Debug.LogError("Map_TB MapList error : " + mapId);
+                return;
+            }
+
+            // 포탈
+            foreach (var potal in DBMgr.Map_TB.PotalList.Values)
+            {
+                if (potal.MapIdx == mapId)
+                {
+                    _interactTiles.Add(new Vector3Int(potal.PosX, potal.PosY, 0), new Potal(potal.Idx));
+                }
+            }
+        }
+
+        // 맵 범위, 충돌 확인
+        private async Task LeadCollision(int mapId)
+        {
+            // Collision 파일
+            string key = string.Format("MapCollision_{0}", mapId);
+            var handle = Addressables.LoadAssetAsync<TextAsset>(key);
+
+            TextAsset txt = await handle.Task;
             StringReader reader = new StringReader(txt.text);
 
             _minX = int.Parse(reader.ReadLine());
@@ -97,7 +178,7 @@ namespace Manager
             int sizeX = _maxX - _minX;
             int sizeY = _maxY - _minY;
 
-            collision = new int[sizeY, sizeX];
+            _collision = new int[sizeY, sizeX];
 
             for (int y = 0; y < sizeY; y++)
             {
@@ -105,31 +186,127 @@ namespace Manager
                 for (int x = 0; x < sizeX; x++)
                 {
                     if (int.TryParse(line[x].ToString(), out int num))
-                        collision[y, x] = num;
+                        _collision[y, x] = num;
                     else
                         Debug.LogError($"not int {line[x]}");
                 }
             }
+
+            Addressables.Release(handle);
         }
 
-        private void DestroyMap()
+
+    }
+
+    public class TileData
+    {
+        public TileType Type;
+
+        public enum TileType
         {
-            GameObject obj = Map.gameObject;
-            Map = null;
-            Destroy(obj);
+            None,
+            Potal,
+
         }
-        
-        // 맵 생성
-        private void MakeMap(int mapNum)
+
+        public virtual void Interact()
         {
-            if (mapNum == 0)
-                return;
 
-            string mapName = "Map_" + mapNum.ToString("000");
-            GameObject obj = AddressableMgr.Instance.GetAsset<GameObject>(mapName);
-            Instantiate(obj, Vector3.zero, Quaternion.identity);
+        }
+    }
 
-            Map = obj.GetComponent<Grid>();
-        }        
+    public class Potal: TileData
+    {
+        private int _movePotalIdx;
+        private string _sceneName;
+        private Vector3Int _spwanPos;
+        private int _moveMapIdx;
+
+        public Potal(int potalIdx)
+        {
+            Type = TileType.Potal;
+            Init(potalIdx);
+        }
+
+        public void Init(int potalIdx)
+        {
+            if (DBMgr.Map_TB.PotalList.TryGetValue(potalIdx, out var potal))
+            {
+                _movePotalIdx = potal.MovePotal;
+            }
+
+            if (DBMgr.Map_TB.PotalList.TryGetValue(_movePotalIdx, out var movePotal))
+            {
+                _spwanPos = new Vector3Int(movePotal.PosX, movePotal.PosY);
+            }
+
+            if (DBMgr.Map_TB.MapList.TryGetValue(movePotal.MapIdx, out var map))
+            {
+                _moveMapIdx = map.Idx;
+                _sceneName = map.Scene;
+            }
+
+
+        }
+
+        public override void Interact()
+        {
+            Debug.Log("포탈!!!!! : " + _sceneName + " : " + _moveMapIdx);
+
+            if (DBMgr.Map_TB.MapList.TryGetValue(SceneMgr.Instance.CurMap.MapId, out var map))
+            {
+                // 맵 데이터 교체
+                SceneMgr.Instance.SetMapData(_moveMapIdx);
+                SceneMgr.Instance.SpwanPos = _spwanPos;
+
+                // 씬 교체
+                if (map.Scene != _sceneName)
+                {
+                    SceneMgr.Instance.LoadScene(_sceneName);
+                }
+            }
+        }
+    }
+
+    public class MonsterState
+    {
+        private List<GameObject> _monsters = new List<GameObject>();
+
+        public void Add(GameObject obj)
+        {
+            _monsters.Add(obj);
+        }
+
+        public void Remove(GameObject obj)
+        {
+            _monsters.Remove(obj);
+        }
+
+        public void Clear()
+        {
+            _monsters.Clear();
+        }
+
+        public GameObject Find(Vector3Int cellPos)
+        {
+            foreach (var obj in _monsters)
+            {
+                if (obj.activeSelf == false)
+                    continue;
+
+                if (obj.TryGetComponent<CharaController>(out var cc) == false)
+                {
+                    Debug.LogError($"cc null error: {obj.name}");
+                    continue;
+                }
+                else
+                {
+                    if (cc.CellPos == cellPos)
+                        return obj;
+                }
+            }
+
+            return null;
+        }
     }
 }

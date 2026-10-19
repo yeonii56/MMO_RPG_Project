@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class InitScene : MonoBehaviour
 {
@@ -29,7 +30,11 @@ public class InitScene : MonoBehaviour
     private void Init()
     {
         Manager.AddressableMgr.Instance.AddLoadAssets("Player", typeof(GameObject));
-        Manager.AddressableMgr.Instance.AddLoadAssets("Map_001", typeof(GameObject));
-        Manager.AddressableMgr.Instance.AddLoadAssets("001", typeof(TextAsset));
+        Manager.AddressableMgr.Instance.AddLoadAssets("Map_101", typeof(GameObject));
+        Manager.AddressableMgr.Instance.AddLoadAssets("MapCollision_101", typeof(TextAsset));
+        Manager.AddressableMgr.Instance.AddLoadAssets("Potal", typeof(Tile));
+
+        // DB
+        Manager.AddressableMgr.Instance.AddLoadAssets("Map_TB", typeof(TextAsset));
     }
 }

@@ -66,12 +66,12 @@ public class Spawner : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             MonsterController mc = ObjectPool.Instance.Get(_monsterId);
-            mc.CellPos = SceneMgr.Instance.RandomPos();
+            mc.CellPos = SceneMgr.Instance.CurMap.RandomPos();
             mc.OnDead += HandleMonsterDead;
             mc.Init();
 
             _list.Add(mc);
-            ObjectMgr.Instance.Add(mc.gameObject);
+            SceneMgr.Instance.MonsterState.Add(mc.gameObject);
         }
     }
 
@@ -81,7 +81,7 @@ public class Spawner : MonoBehaviour
 
         _list.Remove(mc);
         ObjectPool.Instance.Add(_monsterId, mc);
-        ObjectMgr.Instance.Remove(mc.gameObject);        
+        SceneMgr.Instance.MonsterState.Remove(mc.gameObject);        
 
         _isSpawn = true;
     }

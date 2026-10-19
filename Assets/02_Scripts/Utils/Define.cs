@@ -15,6 +15,7 @@ public class Define
     {
         Idle,
         Move,
+        Interact,
         Attack,
         Dead
     }

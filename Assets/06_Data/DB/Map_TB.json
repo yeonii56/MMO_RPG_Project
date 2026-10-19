@@ -1,0 +1,66 @@
+{
+  "MapList": {
+    "101": {
+      "Idx": 101,
+      "Prefab": "Map_101",
+      "MapData": "101",
+      "Scene": "MainScene"
+    },
+    "201": {
+      "Idx": 201,
+      "Prefab": "Map_201",
+      "MapData": "201",
+      "Scene": "BattleScene"
+    },
+    "202": {
+      "Idx": 202,
+      "Prefab": "Map_202",
+      "MapData": "202",
+      "Scene": "BattleScene"
+    }
+  },
+  "PotalList": {
+    "10101": {
+      "Idx": 10101,
+      "PosX": 5,
+      "PosY": 5,
+      "MapIdx": 101,
+      "MovePotal": 20101
+    },
+    "10102": {
+      "Idx": 10102,
+      "PosX": -5,
+      "PosY": -5,
+      "MapIdx": 101,
+      "MovePotal": 30101
+    },
+    "20101": {
+      "Idx": 20101,
+      "PosX": -5,
+      "PosY": -5,
+      "MapIdx": 201,
+      "MovePotal": 10101
+    },
+    "20102": {
+      "Idx": 20102,
+      "PosX": 5,
+      "PosY": 5,
+      "MapIdx": 201,
+      "MovePotal": 20201
+    },
+    "20201": {
+      "Idx": 20201,
+      "PosX": 0,
+      "PosY": 0,
+      "MapIdx": 202,
+      "MovePotal": 20102
+    },
+    "30101": {
+      "Idx": 30101,
+      "PosX": 0,
+      "PosY": 0,
+      "MapIdx": 301,
+      "MovePotal": 10102
+    }
+  }
+}

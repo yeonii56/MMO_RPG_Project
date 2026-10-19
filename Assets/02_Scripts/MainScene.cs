@@ -1,3 +1,4 @@
+using Manager;
 using System.Threading;
 using UnityEngine;
 
@@ -5,7 +6,13 @@ public class MainScene : MonoBehaviour
 {
     private void Awake()
     {
-        Manager.SceneMgr.Instance.UpdateMap(1);
+        Init();
+    }
+
+    private async void Init()
+    {
+        Manager.SceneMgr.Instance.SetMapData(101);
+        await Manager.SceneMgr.Instance.ChangeMap();
         MakeChara("Player");
     }
 
@@ -16,17 +23,11 @@ public class MainScene : MonoBehaviour
             return;
 
         GameObject chara = Instantiate(asset);
-        Manager.ObjectMgr.Instance.Add(chara);
+        Manager.SceneMgr.Instance.MonsterState.Add(chara);
 
         if (chara.TryGetComponent<CharaController>(out var cc))
         {
-            cc.CellPos = Vector3Int.zero;
+            cc.CellPos = SceneMgr.Instance.SpwanPos;
         }
-    }
-
-    private void LoadTitleScene()
-    {
-        Manager.AddressableMgr.Instance.AddLoadAssets("10001", typeof(GameObject));
-        Manager.SceneMgr.Instance.LoadScene("BattleScene");
     }
 }

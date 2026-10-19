@@ -93,7 +93,7 @@ public class CharaController : MonoBehaviour
         State = Define.CharaState.Idle;
         Dir = Define.MoveDir.None;
 
-        transform.position = Manager.SceneMgr.Instance.Map.CellToWorld(CellPos);
+        transform.position = Manager.SceneMgr.Instance.GetCelltoWorld(CellPos);
     }
 
     protected virtual void UpdateController()
@@ -155,7 +155,7 @@ public class CharaController : MonoBehaviour
     {
         if (State == CharaState.Move)
         {
-            Vector3 destPos = Manager.SceneMgr.Instance.Map.CellToWorld(CellPos);
+            Vector3 destPos = Manager.SceneMgr.Instance.GetCelltoWorld(CellPos);
             Vector3 moveDir = destPos - transform.position;
 
             if (moveDir.magnitude < _speed * Time.deltaTime)
@@ -197,9 +197,9 @@ public class CharaController : MonoBehaviour
                 break;
         }
 
-        if (Manager.SceneMgr.Instance.CanGo(destPos))
+        if (Manager.SceneMgr.Instance.CurMap.CanGo(destPos))
         {
-            if (Manager.ObjectMgr.Instance.Find(destPos) == null)
+            if (SceneMgr.Instance.MonsterState.Find(destPos) == null)
             {
                 CellPos = destPos;
             }

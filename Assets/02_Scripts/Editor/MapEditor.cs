@@ -21,8 +21,8 @@ public class MapEditor
             {
                 Tilemap bas = Util.FindChild<Tilemap>(map, "Tilemap_Base", true);
                 Tilemap env = Util.FindChild<Tilemap>(map, "Tilemap_Env", true);
-                Tilemap potal = Util.FindChild<Tilemap>(map, "Tilemap_Potal", true);
-                
+                // Tilemap interact = Util.FindChild<Tilemap>(map, "interact", true);
+
                 if (env == null)
                 {
                     Debug.LogError("tm null");
@@ -30,7 +30,7 @@ public class MapEditor
                 }
 
                 // 파일 생성
-                using (var writer = File.CreateText($"Assets/06_Data/Map/{map.name.Split("_")[1]}.txt"))
+                using (var writer = File.CreateText($"Assets/06_Data/Map/MapCollision_{map.name.Split("_")[1]}.txt"))
                 {
                     bas.CompressBounds();
                     writer.WriteLine(bas.cellBounds.xMin);
@@ -44,11 +44,11 @@ public class MapEditor
                         for (int x = bas.cellBounds.xMin; x < bas.cellBounds.xMax; x++)
                         {
                             TileBase envTile = env.GetTile(new Vector3Int(x, y, 0));
-                            TileBase potalTile = potal.GetTile(new Vector3Int(x, y, 0));
+                            // TileBase interactTile = potal.GetTile(new Vector3Int(x, y, 0));
 
-                            if (potalTile != null)
+/*                            if (interactTile != null)
                                 writer.Write(2);
-                            else if (envTile != null)
+                            else*/ if (envTile != null)
                                 writer.Write(1);
                             else
                                 writer.Write(0);
