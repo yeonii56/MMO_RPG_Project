@@ -62,5 +62,39 @@
       "MapIdx": 301,
       "MovePotal": 10102
     }
+  },
+  "Monster": {
+    "20101": {
+      "Idx": 20101,
+      "Prefab": "M_20101",
+      "PosX": 6,
+      "PosY": 4,
+      "MapIdx": 201,
+      "Count": 5
+    },
+    "20102": {
+      "Idx": 20102,
+      "Prefab": "M_20102",
+      "PosX": 3,
+      "PosY": 8,
+      "MapIdx": 201,
+      "Count": 3
+    },
+    "20201": {
+      "Idx": 20201,
+      "Prefab": "M_20201",
+      "PosX": 3,
+      "PosY": 2,
+      "MapIdx": 202,
+      "Count": 2
+    },
+    "30101": {
+      "Idx": 30101,
+      "Prefab": "M_30101",
+      "PosX": 5,
+      "PosY": 5,
+      "MapIdx": 301,
+      "Count": 1
+    }
   }
 }

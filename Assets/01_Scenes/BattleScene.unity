@@ -148,7 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96e57e56167719845a8f4fa1812c8719, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleScene
-  spawner: {fileID: 1459155921}
+  _spawner: {fileID: 1459155921}
 --- !u!4 &802387446
 Transform:
   m_ObjectHideFlags: 0

@@ -10,43 +10,85 @@ namespace Manager
 {
     public class SceneMgr : Singleton<SceneMgr>
     {
-        public MonsterState MonsterState;
-        private Dictionary<int, MapData> _mapData = new();
         public MapData CurMap;
-        private GameObject _curMapObj;
-        private Grid _grid;
         public Vector3Int SpwanPos;
 
-        // 타이틀씬 로드
-        public void LoadTitleScene()
-        {
-            Action callback = () => LoadScene("TitleScene");
-            AddressableMgr.Instance.StartDefaultAssetLoad(callback);
-        }
+        private Dictionary<int, MapData> _mapData = new();
+        private Grid _grid;
+        private GameObject _map;
+        private bool _isChangeMap = false;
+        private bool _isLoading = false;
 
         // 씬 로드
-        public void LoadScene(string sceneName)
+
+        public async Task LoadScene(string sceneName)
         {
-            AddressableMgr.Instance.StartLoadAssets(async () => await SceneManager.LoadSceneAsync(sceneName));            
+            if (_isLoading) return;
+            _isLoading = true;
+
+            try
+            {
+                await AddressableMgr.Instance.StartLoadAssets();
+
+                var op = SceneManager.LoadSceneAsync(sceneName);
+                if (op == null)
+                    throw new InvalidOperationException($"Scene not found : {sceneName}");
+
+                await op;
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                AddressableMgr.Instance.UnloadMap();
+            }
+            finally
+            {
+                _isLoading = false;
+            }
         }
 
         // 맵 교체
         public async Task ChangeMap()
         {
-            // 맵 제거
-            if (_curMapObj != null)
+            if (_isChangeMap)
+                return;
+
+            try
             {
-                Addressables.ReleaseInstance(_curMapObj);
+                _isChangeMap = true;
+
+                // 맵 제거
+                if (_map != null)
+                {
+                    Destroy(_map);
+                    _map = null;
+                }
+
+                // 에셋 로드
+                AddressableMgr.Instance.UnloadMap();
+                await AddressableMgr.Instance.LoadAssetByMap(CurMap.MapId);
+
+                // 맵 생성            
+                if (DBMgr.Map_TB.MapList.TryGetValue(CurMap.MapId, out var mapData) == false)
+                {
+                    Debug.LogError("Not Found Map : " + CurMap.MapId);
+                    return;
+                }
+                var prefab = AddressableMgr.Instance.GetMapAsset<GameObject>(mapData.Prefab);
+                _map = Instantiate(prefab, Vector3.zero, Quaternion.identity);
+                if (_map.TryGetComponent<Grid>(out _grid) == false)
+                {
+                    Debug.LogError("grid component null error");
+                }
             }
-
-            // 맵 생성
-            string key = string.Format("Map_{0}", CurMap.MapId);
-            var _handle = Addressables.InstantiateAsync(key);
-            _curMapObj = await _handle.Task;
-            _grid = _curMapObj.GetComponent<Grid>();
-
-            // 몬스터 생성 -> 생성 로직 수정 필요
-            MonsterState = new();
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+            finally
+            {
+                _isChangeMap = false;
+            }           
         }
 
         // 맵 데이터 셋팅
@@ -71,13 +113,7 @@ namespace Manager
             }
 
             return _grid.CellToWorld(cellPos);
-        }
-
-        // 오브젝트 체크
-        public GameObject FindObj(Vector3Int cellPos)
-        {
-            return MonsterState.Find(cellPos);
-        }
+        }       
     }
 
     public class MapData
@@ -111,7 +147,7 @@ namespace Manager
                     y = UnityEngine.Random.Range(_minY, _maxY)
                 };
 
-            } while (CanGo(cellPos) == false || SceneMgr.Instance.FindObj(cellPos) != null);
+            } while (CanGo(cellPos) == false);
 
             return cellPos;
         }
@@ -265,48 +301,6 @@ namespace Manager
                     SceneMgr.Instance.LoadScene(_sceneName);
                 }
             }
-        }
-    }
-
-    public class MonsterState
-    {
-        private List<GameObject> _monsters = new List<GameObject>();
-
-        public void Add(GameObject obj)
-        {
-            _monsters.Add(obj);
-        }
-
-        public void Remove(GameObject obj)
-        {
-            _monsters.Remove(obj);
-        }
-
-        public void Clear()
-        {
-            _monsters.Clear();
-        }
-
-        public GameObject Find(Vector3Int cellPos)
-        {
-            foreach (var obj in _monsters)
-            {
-                if (obj.activeSelf == false)
-                    continue;
-
-                if (obj.TryGetComponent<CharaController>(out var cc) == false)
-                {
-                    Debug.LogError($"cc null error: {obj.name}");
-                    continue;
-                }
-                else
-                {
-                    if (cc.CellPos == cellPos)
-                        return obj;
-                }
-            }
-
-            return null;
         }
     }
 }

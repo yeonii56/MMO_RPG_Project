@@ -10,33 +10,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: MainScene
+  m_Name: Default
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
-  m_GroupName: MainScene
-  m_GUID: bd43e301cde35814e8cef86a95fcb4c8
+  m_GroupName: Default
+  m_GUID: 0ec2c0a0196c24b4eaa6743924753216
   m_SerializeEntries:
-  - m_GUID: 01a84720abee066488a9784637211b4b
-    m_Address: 10001
+  - m_GUID: 6877fb649746c674d8fbbcf60d41892b
+    m_Address: Player
     m_ReadOnly: 0
     m_SerializedLabels:
     - default
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 090344217a7fed34296d9aa766b2ac4a
-    m_Address: MapCollision_201
+  - m_GUID: b2859c96283c04d4ba702153294eb3cc
+    m_Address: Potal
     m_ReadOnly: 0
     m_SerializedLabels:
-    - default
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: c26d24ae77a12cd4aaf7f482aae0af8d
-    m_Address: Map_201
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Map
     - default
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: e25900ce1667d3c48ad4a1b014cd1dfb, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 26142c56448158f49bbacbd216405fb5, type: 2}
-    - {fileID: 11400000, guid: 69b445afdebbce24b91c536bbe6f7e4e, type: 2}
+    - {fileID: 11400000, guid: 20a05aff2a6794a4585a88aba6017b5c, type: 2}
+    - {fileID: 11400000, guid: 6a499e70d3d1d22469dc5a3e2c989b8a, type: 2}

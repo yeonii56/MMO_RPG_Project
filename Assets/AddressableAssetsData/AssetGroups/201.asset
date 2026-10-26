@@ -10,45 +10,39 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: Default Assets
+  m_Name: 201
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
-  m_GroupName: Default Assets
-  m_GUID: 0d28064717557c44c8695f722ace3e8e
+  m_GroupName: 201
+  m_GUID: 4005e7fb8d04e1049ba3a9d52ae33f01
   m_SerializeEntries:
-  - m_GUID: 6877fb649746c674d8fbbcf60d41892b
-    m_Address: Player
+  - m_GUID: 01a84720abee066488a9784637211b4b
+    m_Address: M_20101
     m_ReadOnly: 0
     m_SerializedLabels:
-    - default
+    - 201
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 8733a3275d975bd4bb3e30299493929c
-    m_Address: Map_TB
+  - m_GUID: 090344217a7fed34296d9aa766b2ac4a
+    m_Address: MapCollision_201
     m_ReadOnly: 0
     m_SerializedLabels:
-    - default
+    - 201
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 9446dd5a7fe78ce47a1e4dbc5bd1365a
-    m_Address: MapCollision_101
+  - m_GUID: 0b109a42def72e345b635b3236c26f93
+    m_Address: M_20102
     m_ReadOnly: 0
     m_SerializedLabels:
-    - default
+    - 201
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: b2859c96283c04d4ba702153294eb3cc
-    m_Address: Potal
+  - m_GUID: c26d24ae77a12cd4aaf7f482aae0af8d
+    m_Address: Map_201
     m_ReadOnly: 0
     m_SerializedLabels:
-    - default
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: e80f68e73f9de0b40811ff1aabeb0c55
-    m_Address: Map_101
-    m_ReadOnly: 0
-    m_SerializedLabels:
+    - 201
     - Map
-    - default
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: e25900ce1667d3c48ad4a1b014cd1dfb, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 07fce48bf3614764f88e0d399d96936f, type: 2}
-    - {fileID: 11400000, guid: b60d7acd6e75da848937eba8f9e17b17, type: 2}
+    - {fileID: 11400000, guid: 4e10496fabadc7242857b64fe14c7d87, type: 2}
+    - {fileID: 11400000, guid: e37e12f3dd6396b499880a0c8533fb5f, type: 2}

@@ -1,8 +1,10 @@
+using Manager;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class TitleScene : MonoBehaviour
 {
+    private string _sceneName;
+
     private void Start()
     {
         Init();
@@ -10,22 +12,19 @@ public class TitleScene : MonoBehaviour
 
     public void ClickStartBtn()
     {
-        LoadMainScene();
+        SceneMgr.Instance.LoadScene(_sceneName);
     }
 
     private void Init()
     {
         DBMgr.Init();
-        SetMapData();
+        SetData();
     }
 
-    private void SetMapData()
+    // 서버에서 데이터 받아오게 수정
+    private void SetData()
     {
-
-    }
-
-    private void LoadMainScene()
-    {
-        Manager.SceneMgr.Instance.LoadScene("MainScene");
+        SceneMgr.Instance.SpwanPos = Vector3Int.zero;
+        _sceneName = "MainScene";
     }
 }

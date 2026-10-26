@@ -1,9 +1,10 @@
 using Manager;
-using System.Threading;
 using UnityEngine;
 
 public class MainScene : MonoBehaviour
 {
+    private PlayerController _player;
+
     private void Awake()
     {
         Init();
@@ -13,7 +14,9 @@ public class MainScene : MonoBehaviour
     {
         Manager.SceneMgr.Instance.SetMapData(101);
         await Manager.SceneMgr.Instance.ChangeMap();
-        MakeChara("Player");
+
+        if (_player == null)
+            MakeChara("Player");
     }
 
     private void MakeChara(string name)
@@ -22,12 +25,11 @@ public class MainScene : MonoBehaviour
         if (asset == null)
             return;
 
-        GameObject chara = Instantiate(asset);
-        Manager.SceneMgr.Instance.MonsterState.Add(chara);
+        GameObject obj = Instantiate(asset);
 
-        if (chara.TryGetComponent<CharaController>(out var cc))
+        if (obj.TryGetComponent<PlayerController>(out var _player))
         {
-            cc.CellPos = SceneMgr.Instance.SpwanPos;
+            _player.CellPos = SceneMgr.Instance.SpwanPos;
         }
     }
 }

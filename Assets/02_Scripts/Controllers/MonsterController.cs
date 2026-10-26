@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class MonsterController : CharaController
 {
+    public int MonsterId { get; private set; }
     public event Action<MonsterController> OnDead;    
     private Coroutine _coroutine;
 

@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Xml.Linq;
+using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 
 public class ObjectPool : Singleton<ObjectPool>
@@ -15,13 +17,17 @@ public class ObjectPool : Singleton<ObjectPool>
     {
         if (_pool.TryGetValue(entry.id, out Queue<MonsterController> queue))
         {
-            if (_pool.Count >= entry.count)
-                return;
+            if (_pool.Count < entry.count)
+            {
+                for (int i = 0; i < entry.count - queue.Count; i++)
+                {
+                    queue.Enqueue(CreateNew(entry.id));
+                }
+            }
+            return;
         }
-        else
-        {
-            queue = new();
-        }
+
+        queue = new();
 
         for (int i = 0; i < entry.count; i++)
         {
@@ -38,7 +44,7 @@ public class ObjectPool : Singleton<ObjectPool>
 
         if (_pool.TryGetValue(id, out Queue<MonsterController> queue) == false)
         {
-            Debug.LogError("not found queue: + " + id);
+            Debug.LogError("not found queue: " + id);
             return null;
 
         }
@@ -71,10 +77,15 @@ public class ObjectPool : Singleton<ObjectPool>
 
     private MonsterController CreateNew(int id)
     {
-        GameObject prefab = Manager.AddressableMgr.Instance.GetAsset<GameObject>(id.ToString());
+        if (DBMgr.Map_TB.Monster.TryGetValue(id, out var data) == false)
+        {
+            Debug.LogError("Not Found MonsterData : " + id);
+            return null;
+        }
+
+        GameObject prefab = Manager.AddressableMgr.Instance.GetMapAsset<GameObject>(data.Prefab);
         GameObject obj = Instantiate(prefab, transform);
         obj.SetActive(false);
-
         return obj.GetComponent<MonsterController>();
     }
 }

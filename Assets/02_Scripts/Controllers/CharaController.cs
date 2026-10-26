@@ -7,10 +7,11 @@ public class CharaController : MonoBehaviour
     [SerializeField] protected Animator _anim;
     [SerializeField] protected Transform _trans;
     public Vector3Int CellPos { get; set; } = Vector3Int.zero;
+
+    protected BattleScene _battleScene;
     protected float _speed = 5f;
     protected float _hp = 100f;
     protected float _damage = 100f;
-
 
     private CharaState _state = CharaState.Idle;
     protected CharaState State
@@ -199,7 +200,7 @@ public class CharaController : MonoBehaviour
 
         if (Manager.SceneMgr.Instance.CurMap.CanGo(destPos))
         {
-            if (SceneMgr.Instance.MonsterState.Find(destPos) == null)
+            if (_battleScene == null || _battleScene.Monsters.Find(destPos) == null)
             {
                 CellPos = destPos;
             }

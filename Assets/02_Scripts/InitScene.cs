@@ -24,14 +24,12 @@ public class InitScene : MonoBehaviour
     // 타이틀씬 로드
     private void LoadTitleScene()
     {
-        Manager.SceneMgr.Instance.LoadTitleScene();
+        Manager.SceneMgr.Instance.LoadScene("TitleScene");
     }
 
     private void Init()
     {
         Manager.AddressableMgr.Instance.AddLoadAssets("Player", typeof(GameObject));
-        Manager.AddressableMgr.Instance.AddLoadAssets("Map_101", typeof(GameObject));
-        Manager.AddressableMgr.Instance.AddLoadAssets("MapCollision_101", typeof(TextAsset));
         Manager.AddressableMgr.Instance.AddLoadAssets("Potal", typeof(Tile));
 
         // DB

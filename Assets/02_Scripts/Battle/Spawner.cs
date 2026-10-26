@@ -1,4 +1,5 @@
 using Manager;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,9 +7,11 @@ public class Spawner : MonoBehaviour
 {
     private bool _isSpawn = false;
     private float _spawnTimer;
-    private int _monsterId;
-    private int _monsterCnt;
-    private List<MonsterController> _list = new();
+    private Dictionary<int, int> _spawnData = new(); // 현재 맵 몬스터 데이터 (MonsterId, Count)
+    private Dictionary<int, List<MonsterController>> _aliveMonsters = new(); // 맵에서 사용 중인 몬스터
+    private Action<GameObject> _spawnCallback;
+    private Action<GameObject> _deSpawnCallback;
+    private Func<Vector3Int> _randomPos;
 
     private void Update()
     {
@@ -18,60 +21,76 @@ public class Spawner : MonoBehaviour
 
             if (_spawnTimer > 3f)
             {
+                _isSpawn = false;
                 _spawnTimer = 0f;
-                Spwan();
+                StartSpwan();
             }
         }
     }
 
-    public void ResetSpwaner()
+    public void InitSpawn(Dictionary<int, int> spawnData, Action<GameObject> callback, Action<GameObject> desCallback, Func<Vector3Int> randomPos)
     {
-        if (_list.Count > 0)
+        ResetSpwaner();
+
+        _spawnData = spawnData;
+        _spawnCallback = callback;
+        _deSpawnCallback = desCallback;
+        _randomPos = randomPos;
+
+        StartSpwan();
+    }
+
+    private void ResetSpwaner()
+    {
+        foreach (var monsterList in _aliveMonsters.Values)
         {
-            for (int i = 0; i < _list.Count; i++)
+            if (monsterList.Count > 0)
             {
-                Despwan(_list[0]);
+                for (int i = 0; i < monsterList.Count; i++)
+                {
+                    Despwan(monsterList[0]);
+                }
             }
         }
 
         _isSpawn = false;
-        _monsterId = 0;
-        _monsterCnt = 0;
+        _spawnData.Clear();
     }
 
-    public void InitSpawn(int id, int count)
+    private void StartSpwan()
     {
-        ResetSpwaner();
-
-        _monsterId = id;
-        _monsterCnt = count;
-
-        Spwan(count);
-    }
-
-    private void Spwan()
-    {
-        if (_monsterCnt <= _list.Count)
+        foreach (var data in _spawnData)
         {
-            _isSpawn = false;
-            _spawnTimer = 0;
-            return;
-        }
+            int id = data.Key;
 
-        Spwan(_monsterCnt - _list.Count);
+            if (_aliveMonsters.TryGetValue(id, out var monsterList) == false)
+            {
+                monsterList = new();
+                _aliveMonsters.Add(id, monsterList);
+            } 
+            
+            if (_spawnData[id] > monsterList.Count)
+            {
+                _isSpawn = true;
+                Spwan(id, data.Value - monsterList.Count);
+            }
+        }
     }
 
-    private void Spwan(int count)
+    private void Spwan(int id, int count)
     {
+        if (count == 0)
+            return;
+
         for (int i = 0; i < count; i++)
         {
-            MonsterController mc = ObjectPool.Instance.Get(_monsterId);
-            mc.CellPos = SceneMgr.Instance.CurMap.RandomPos();
+            MonsterController mc = ObjectPool.Instance.Get(id);
+            mc.CellPos = _randomPos();
             mc.OnDead += HandleMonsterDead;
             mc.Init();
 
-            _list.Add(mc);
-            SceneMgr.Instance.MonsterState.Add(mc.gameObject);
+            _aliveMonsters[id].Add(mc);
+            _spawnCallback?.Invoke(mc.gameObject);
         }
     }
 
@@ -79,9 +98,9 @@ public class Spawner : MonoBehaviour
     {
         mc.OnDead -= HandleMonsterDead;
 
-        _list.Remove(mc);
-        ObjectPool.Instance.Add(_monsterId, mc);
-        SceneMgr.Instance.MonsterState.Remove(mc.gameObject);        
+        _aliveMonsters[mc.MonsterId].Remove(mc);
+        ObjectPool.Instance.Add(mc.MonsterId, mc);
+        _deSpawnCallback?.Invoke(mc.gameObject);        
 
         _isSpawn = true;
     }
@@ -89,5 +108,47 @@ public class Spawner : MonoBehaviour
     private void HandleMonsterDead(MonsterController mc)
     {
         Despwan(mc);
+    }
+}
+
+public class MonsterMgr
+{
+    private List<GameObject> _monsters = new List<GameObject>();
+
+    public void Add(GameObject obj)
+    {
+        _monsters.Add(obj);
+    }
+
+    public void Remove(GameObject obj)
+    {
+        _monsters.Remove(obj);
+    }
+
+    public void Clear()
+    {
+        _monsters.Clear();
+    }
+
+    public GameObject Find(Vector3Int cellPos)
+    {
+        foreach (var obj in _monsters)
+        {
+            if (obj.activeSelf == false)
+                continue;
+
+            if (obj.TryGetComponent<CharaController>(out var cc) == false)
+            {
+                Debug.LogError($"cc null error: {obj.name}");
+                continue;
+            }
+            else
+            {
+                if (cc.CellPos == cellPos)
+                    return obj;
+            }
+        }
+
+        return null;
     }
 }

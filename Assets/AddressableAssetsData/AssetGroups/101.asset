@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: 101
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: 101
+  m_GUID: bd43e301cde35814e8cef86a95fcb4c8
+  m_SerializeEntries:
+  - m_GUID: 8733a3275d975bd4bb3e30299493929c
+    m_Address: Map_TB
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - 101
+    - default
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9446dd5a7fe78ce47a1e4dbc5bd1365a
+    m_Address: MapCollision_101
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - 101
+    - default
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e80f68e73f9de0b40811ff1aabeb0c55
+    m_Address: Map_101
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - 101
+    - Map
+    - default
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: e25900ce1667d3c48ad4a1b014cd1dfb, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 26142c56448158f49bbacbd216405fb5, type: 2}
+    - {fileID: 11400000, guid: 69b445afdebbce24b91c536bbe6f7e4e, type: 2}

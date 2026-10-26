@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 468a46d0ae32c3544b7d98094e6448a9, type: 3}
   m_Name: AddressableAssetSettings
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetSettings
-  m_DefaultGroup: 0d28064717557c44c8695f722ace3e8e
+  m_DefaultGroup: 0ec2c0a0196c24b4eaa6743924753216
   m_currentHash:
     serializedVersion: 2
     Hash: 00000000000000000000000000000000
@@ -61,7 +61,8 @@ MonoBehaviour:
   m_BuildAddressablesWithPlayerBuild: 0
   m_overridePlayerVersion: '[UnityEditor.PlayerSettings.bundleVersion]'
   m_GroupAssets:
-  - {fileID: 11400000, guid: f691fb98e6f0aac4b8948212e75bc3a4, type: 2}
+  - {fileID: 11400000, guid: caf7c220bb3d0764ab026682c25352fa, type: 2}
+  - {fileID: 11400000, guid: 36b97ecaf418fa849850ed2aee9d13d4, type: 2}
   - {fileID: 11400000, guid: 86f3eed4cdf910d4fa2afa9644a34dd5, type: 2}
   m_BuildSettings:
     m_LogResourceManagerExceptions: 1
@@ -103,8 +104,8 @@ MonoBehaviour:
     m_LabelNames:
     - default
     - Map
-    - Data
-    - Monster
+    - 101
+    - 201
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: c69f85470f772f644acfd2c0daacdea0, type: 2}
