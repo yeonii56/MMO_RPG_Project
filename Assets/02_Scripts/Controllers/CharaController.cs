@@ -8,13 +8,12 @@ public class CharaController : MonoBehaviour
     [SerializeField] protected Transform _trans;
     public Vector3Int CellPos { get; set; } = Vector3Int.zero;
 
-    protected BattleScene _battleScene;
     protected float _speed = 5f;
     protected float _hp = 100f;
     protected float _damage = 100f;
 
-    private CharaState _state = CharaState.Idle;
-    protected CharaState State
+    protected CharaState _state = CharaState.Idle;
+    protected virtual CharaState State
     {
         get {  return _state; }
         set
@@ -82,6 +81,7 @@ public class CharaController : MonoBehaviour
     public void OnDamaged(float damage)
     {
         _hp -= damage;
+        Debug.Log("OnDamaged");
 
         if (_hp <= 0)
         {
@@ -198,12 +198,9 @@ public class CharaController : MonoBehaviour
                 break;
         }
 
-        if (Manager.SceneMgr.Instance.CurMap.CanGo(destPos))
+        if (Manager.SceneMgr.Instance.CurMap.CanGo(destPos) && SceneMgr.Instance.Monsters.Find(destPos) == null)
         {
-            if (_battleScene == null || _battleScene.Monsters.Find(destPos) == null)
-            {
-                CellPos = destPos;
-            }
+            CellPos = destPos;
         }
     }
 

@@ -66,7 +66,7 @@ public class PlayerController : CharaController
         }
 
         // 스킬
-        if (_battleScene != null && Input.GetKey(KeyCode.Space))
+        if (Input.GetKey(KeyCode.Space))
         {
             State = CharaState.Attack;
             _coroutine = StartCoroutine(AttackCoroutine());
@@ -123,7 +123,7 @@ public class PlayerController : CharaController
     private IEnumerator AttackCoroutine()
     {
         // 데미지 판정
-        GameObject obj = _battleScene.Monsters.Find(GetFrontCell());
+        CharaController obj = SceneMgr.Instance.Monsters.Find(GetFrontCell());
         if (obj != null)
         {
             if (obj.TryGetComponent<CharaController>(out var cc))

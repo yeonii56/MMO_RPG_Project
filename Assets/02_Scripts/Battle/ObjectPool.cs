@@ -1,12 +1,9 @@
 using System.Collections.Generic;
-using System.Xml.Linq;
-using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 
-public class ObjectPool : Singleton<ObjectPool>
+public class ObjectPool : MonoBehaviour
 {
     private Dictionary<int, Queue<MonsterController>> _pool = new Dictionary<int, Queue<MonsterController>>();
-
     public class Entry // 추후에 DB랑 연결
     {
         public int id;
@@ -17,7 +14,7 @@ public class ObjectPool : Singleton<ObjectPool>
     {
         if (_pool.TryGetValue(entry.id, out Queue<MonsterController> queue))
         {
-            if (_pool.Count < entry.count)
+            if (queue.Count < entry.count)
             {
                 for (int i = 0; i < entry.count - queue.Count; i++)
                 {
@@ -45,8 +42,8 @@ public class ObjectPool : Singleton<ObjectPool>
         if (_pool.TryGetValue(id, out Queue<MonsterController> queue) == false)
         {
             Debug.LogError("not found queue: " + id);
-            return null;
-
+            SetPool(new Entry { id = id, count = 1 });
+            queue = _pool[id];
         }
 
         if (queue.Count > 0)
@@ -63,12 +60,13 @@ public class ObjectPool : Singleton<ObjectPool>
     }
 
     // 풀에 넣어주기
-    public void Add(int id, MonsterController mc)
+    public void Return(int id, MonsterController mc)
     {
         if (_pool.TryGetValue(id, out Queue<MonsterController> queue) == false)
         {
-            Debug.LogError("not found pool: + " + id);
-            _pool.Add(id, new Queue<MonsterController>());
+            Debug.LogError("not found pool: " + id);
+            queue = new Queue<MonsterController>();
+            _pool.Add(id, queue);
         }
 
         mc.gameObject.SetActive(false);
@@ -85,7 +83,9 @@ public class ObjectPool : Singleton<ObjectPool>
 
         GameObject prefab = Manager.AddressableMgr.Instance.GetMapAsset<GameObject>(data.Prefab);
         GameObject obj = Instantiate(prefab, transform);
+        MonsterController mc = obj.GetComponent<MonsterController>();
         obj.SetActive(false);
-        return obj.GetComponent<MonsterController>();
+        mc.Init(id);
+        return mc;
     }
 }

@@ -5,16 +5,28 @@ using UnityEngine;
 
 public class BattleScene : MonoBehaviour
 {
-    [SerializeField] private Spawner _spawner;
-
-    public MonsterMgr Monsters { get; private set; } = new();
+    private Spawner _spawner;
+    private ObjectPool _pool;
     private PlayerController _player;
 
 
     private void Start()
     {
+        if (TryGetComponent<Spawner>(out _spawner) == false)
+        {
+            Debug.LogError("Null Spawner");
+            return;
+        }
+        if (TryGetComponent<ObjectPool>(out _pool) == false)
+        {
+            Debug.LogError("Null Spawner");
+            return;
+        }
+
+        _spawner.Set(this, _pool);
         MakeMap(SceneMgr.Instance.CurMap.MapId);
     }
+
     private async void MakeMap(int mapID)
     {
         await SceneMgr.Instance.ChangeMap();
@@ -36,6 +48,7 @@ public class BattleScene : MonoBehaviour
         if (obj.TryGetComponent<PlayerController>(out _player))
         {
             _player.CellPos = SceneMgr.Instance.SpwanPos;
+            SceneMgr.Instance.Monsters.Add(_player);
         }
     }
 
@@ -46,27 +59,9 @@ public class BattleScene : MonoBehaviour
 
         foreach (var monsterData in monsterDataList)
         {
-            ObjectPool.Instance.SetPool(new ObjectPool.Entry() { id = monsterData.Idx, count = monsterData.Count });
-            spawnData.Add(monsterData.Idx, monsterData.Count);
+            _pool.SetPool(new ObjectPool.Entry() { id = monsterData.Idx, count = monsterData.Count });
+            spawnData.Add(monsterData.Idx, monsterData.Count);   
         }
-
-        InitSpawner(spawnData);
-    }
-
-    private void InitSpawner(Dictionary<int, int> spawnData)
-    {
-        _spawner.InitSpawn(spawnData, Monsters.Add, Monsters.Remove, GetRandomPos);
-    }
-
-    private Vector3Int GetRandomPos()
-    {
-        Vector3Int pos;
-        do
-        {
-            pos = SceneMgr.Instance.CurMap.RandomPos();
-        }
-        while (Monsters.Find(pos) != null);
-
-        return pos;
+        _spawner.InitSpawn(spawnData);
     }
 }

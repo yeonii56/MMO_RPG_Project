@@ -15,6 +15,13 @@ MonoBehaviour:
   m_GroupName: 201
   m_GUID: 4005e7fb8d04e1049ba3a9d52ae33f01
   m_SerializeEntries:
+  - m_GUID: 0024965380fce984e86f632628af9f23
+    m_Address: Map_201
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - 201
+    - Map
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 01a84720abee066488a9784637211b4b
     m_Address: M_20101
     m_ReadOnly: 0
@@ -32,13 +39,6 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels:
     - 201
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: c26d24ae77a12cd4aaf7f482aae0af8d
-    m_Address: Map_201
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - 201
-    - Map
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: e25900ce1667d3c48ad4a1b014cd1dfb, type: 2}

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -11,6 +12,7 @@ namespace Manager
     public class SceneMgr : Singleton<SceneMgr>
     {
         public MapData CurMap;
+        public MonsterMgr Monsters { get; private set; } = new();
         public Vector3Int SpwanPos;
 
         private Dictionary<int, MapData> _mapData = new();
@@ -47,6 +49,18 @@ namespace Manager
             }
         }
 
+        public Vector3Int GetRandomPos()
+        {
+            Vector3Int pos;
+            do
+            {
+                pos = SceneMgr.Instance.CurMap.RandomPos();
+            }
+            while (Monsters.Find(pos) != null);
+
+            return pos;
+        }
+
         // 맵 교체
         public async Task ChangeMap()
         {
@@ -63,6 +77,9 @@ namespace Manager
                     Destroy(_map);
                     _map = null;
                 }
+
+                // 몬스터 제거
+                Monsters.Clear();
 
                 // 에셋 로드
                 AddressableMgr.Instance.UnloadMap();
@@ -114,6 +131,33 @@ namespace Manager
 
             return _grid.CellToWorld(cellPos);
         }       
+    }
+
+    public class MonsterMgr
+    {
+        private List<CharaController> _monsters = new List<CharaController>();
+
+        public void Add(CharaController obj)
+        {
+            _monsters.Add(obj);
+        }
+
+        public void Remove(CharaController obj)
+        {
+            _monsters.Remove(obj);
+        }
+
+        public void Clear()
+        {
+            if (_monsters.Count > 0)
+                _monsters.Clear();
+        }
+
+        public CharaController Find(Vector3Int cellPos)
+        {
+            CharaController cc = _monsters.Find(x => x.gameObject.activeSelf && x.CellPos == cellPos);
+            return cc;
+        }
     }
 
     public class MapData
